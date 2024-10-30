@@ -1,0 +1,77 @@
+.todo-container{
+    width: 336px;
+    height: 236px;
+    /* background-color: aqua; */
+    border-radius: 10px;
+  border: 1px solid #C4C4C4
+}
+.todo-header{
+    padding-left: 66px;
+    width: 198px;
+    height: 34px;
+    font-family: Roboto;
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 30.47px;
+    text-align: center;
+    padding-top: 13px;
+}
+.sarihisse{
+    width: 336px;
+    height: 28px;
+    background-color:#FFDC40;
+    border-top-left-radius: 10px; 
+    border-top-right-radius: 10px;
+}
+.todo-input{
+width: 286px;
+height: 40px;
+border-radius: 10px 10px 10px 10px;
+border: 1px solid #C4C4C4;
+margin-top: 40px;
+margin-left: 20px;
+}
+.add-button{
+margin-top: 18px;
+width: 150px;
+height: 42px;
+border-radius: 71px;
+border: 1px solid #C4C4C4;
+margin-left: 85px;
+font-family: Roboto;
+font-size: 14px;
+font-weight: 400;
+line-height: 16.41px;
+text-align: center;
+background: #833AE0;
+color: #FFFFFF;
+}
+
+.plus{
+width: 42px;
+height: 42px;
+background: #9953F1;
+border-radius: 50%;
+
+margin-left: 0%;
+font-family: Roboto;
+font-size: 14px;
+font-weight: 400;
+line-height: 16.41px;
+}
+.x{
+width: 20px;
+height: 20px;
+top: 359px;
+left: 672px;
+gap: 0px;
+
+justify-content: center;
+text-align: center;
+border-radius: 71px 71px 71px 71px;
+border: 1px 1px 1px 1px;
+opacity: 0px;
+
+
+border: 1px solid #C4C4C4
+}
