@@ -1,77 +1,180 @@
-.todo-container{
-    width: 336px;
-    height: 236px;
-    /* background-color: aqua; */
-    border-radius: 10px;
-  border: 1px solid #C4C4C4
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200;400;600;800&family=Roboto:wght@100;400;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-.todo-header{
-    padding-left: 66px;
-    width: 198px;
-    height: 34px;
-    font-family: Roboto;
+
+main {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 336px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #C4C4C4;
+    border-radius: 10px;
+}
+
+.yellow {
+    border-radius: 9px 9px 0 0;
+    width: 100%;
+    height: 28px;
+    background-color: #FFDC40;
+}
+
+h1 {
+    margin: 20px 0;
     font-size: 26px;
     font-weight: 900;
-    line-height: 30.47px;
     text-align: center;
-    padding-top: 13px;
-}
-.sarihisse{
-    width: 336px;
-    height: 28px;
-    background-color:#FFDC40;
-    border-top-left-radius: 10px; 
-    border-top-right-radius: 10px;
-}
-.todo-input{
-width: 286px;
-height: 40px;
-border-radius: 10px 10px 10px 10px;
-border: 1px solid #C4C4C4;
-margin-top: 40px;
-margin-left: 20px;
-}
-.add-button{
-margin-top: 18px;
-width: 150px;
-height: 42px;
-border-radius: 71px;
-border: 1px solid #C4C4C4;
-margin-left: 85px;
-font-family: Roboto;
-font-size: 14px;
-font-weight: 400;
-line-height: 16.41px;
-text-align: center;
-background: #833AE0;
-color: #FFFFFF;
+    font-family: 'Roboto', sans-serif;
 }
 
-.plus{
-width: 42px;
-height: 42px;
-background: #9953F1;
-border-radius: 50%;
-
-margin-left: 0%;
-font-family: Roboto;
-font-size: 14px;
-font-weight: 400;
-line-height: 16.41px;
+.iconfirst {
+    margin: 5px -250px 3px 0px;
+    width: 25px;
+    height: 15px;
 }
-.x{
-width: 20px;
-height: 20px;
-top: 359px;
-left: 672px;
-gap: 0px;
 
-justify-content: center;
-text-align: center;
-border-radius: 71px 71px 71px 71px;
-border: 1px 1px 1px 1px;
-opacity: 0px;
-
-
-border: 1px solid #C4C4C4
+.input-container {
+    display: flex;
+    align-items: center;
+    border: 1px solid #C4C4C4;
+    border-radius: 10px;
+    width: 286px;
+    height: 40px;
+    margin: 0px 10px 10px 10px;
 }
+
+input {
+    width: 80%;
+    height: 35px;
+    border: none;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+input:focus {
+    outline: none;
+}
+
+img.x, img.xhover {
+    width: 20px;
+    cursor: pointer;
+    margin-right: 20px;
+}
+
+img.xhover {
+    display: none;
+}
+
+.input-container:hover .x {
+    display: none;
+}
+
+.input-container:hover .xhover {
+    display: inline;
+}
+
+.add-button {
+    margin: 10px 0px 20px 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    border: none;
+    height: 42px;
+    width: 150px;
+    border-radius: 21px;
+    background-color: #833AE0;
+    position: relative;
+}
+
+.plus {
+    background-color: #9953F1;
+    height: 100%;
+    width: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    position: absolute;
+    left: 0;
+}
+
+.add {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: calc(100% - 30px);
+}
+
+.myList {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    /* border: 1px solid rgb(196, 196, 196); */
+    /* border-radius: 5px; */
+    width: 90%;
+    margin: 5px auto;
+    font-family: 'Roboto', sans-serif;
+    font-size: 10px;
+}
+
+ol {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: 1px solid rgb(196, 196, 196);
+    border-radius: 10px;
+
+}
+
+li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 8px;
+    /* border-bottom: 1px solid #C4C4C4; */
+}
+
+img.xblock, img.xhoverblock {
+    width: 20px;
+    margin-left: auto;
+}
+
+img.xhoverblock {
+    display: none;
+}
+
+.colorchange1:hover .xblock, .colorchange2:hover .xblock, .colorchange3:hover .xblock, 
+.colorchange4:hover .xblock, .colorchange5:hover .xblock {
+    display: none;
+}
+
+.colorchange1:hover .xhoverblock, .colorchange2:hover .xhoverblock, .colorchange3:hover .xhoverblock, 
+.colorchange4:hover .xhoverblock, .colorchange5:hover .xhoverblock {
+    display: inline;
+}
+
+.xhoverblock{
+    display:none;
+}
+li:hover .xblock{
+    display:none;
+}
+li:hover .xhoverblock{
+    display:inline;
+}
+
+
+
