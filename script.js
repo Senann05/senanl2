@@ -1,94 +1,93 @@
-class ToDoList {
-    constructor(elements) {
+class TaskManager {
+    constructor(config) {
         const {
-            addTaskBtnSelector,
-            taskListSelector,
-            inputWrapperSelector,
-            taskInputSelector,
-            toggleIcons
-        } = elements;
+            addButtonSelector,
+            listSelector,
+            inputContainerSelector,
+            textInputSelector,
+            toggleButtons
+        } = config;
 
-        this.addTaskBtn = document.querySelector(addTaskBtnSelector);
-        this.taskList = document.querySelector(taskListSelector);
-        this.inputWrapper = document.querySelector(inputWrapperSelector);
-        this.taskInput = document.querySelector(taskInputSelector);
+        this.addButton = document.querySelector(addButtonSelector);
+        this.taskList = document.querySelector(listSelector);
+        this.inputContainer = document.querySelector(inputContainerSelector);
+        this.textInput = document.querySelector(textInputSelector);
 
-        this.isInputVisible = true;
-        this.isAscending = true;
+        this.inputVisible = true;
+        this.ascendingOrder = true;
 
-        this.initializeUI();
-        this.setupEventListeners(toggleIcons);
+        this.initUI();
+        this.addEventListeners(toggleButtons);
     }
 
-    initializeUI() {
+    initUI() {
         this.taskList.style.display = 'none';
-        this.inputWrapper.style.display = 'flex';
+        this.inputContainer.style.display = 'flex';
     }
 
-    setupEventListeners(toggleIcons) {
-        this.addTaskBtn.addEventListener('click', () => this.handleAddButtonClick());
+    addEventListeners(toggleButtons) {
+        this.addButton.addEventListener('click', () => this.addTaskHandler());
 
-        toggleIcons.forEach(({ visible, hidden }) => {
-            this.setToggleIconVisibility(visible, hidden);
-            visible.addEventListener('click', () => this.toggleSortOrder(visible, hidden));
-            hidden.addEventListener('click', () => this.toggleSortOrder(hidden, visible));
+        toggleButtons.forEach(({ show, hide }) => {
+            this.toggleButtonDisplay(show, hide);
+            show.addEventListener('click', () => this.changeSortOrder(show, hide));
+            hide.addEventListener('click', () => this.changeSortOrder(hide, show));
         });
 
         const clearInputIcon = document.querySelector('.xhover');
-        clearInputIcon.addEventListener('click', this.clearInputField.bind(this));
+        clearInputIcon.addEventListener('click', this.clearInput.bind(this));
     }
 
-    setToggleIconVisibility(visible, hidden) {
-        visible.style.display = 'block';
-        hidden.style.display = 'none';
+    toggleButtonDisplay(show, hide) {
+        show.style.display = 'block';
+        hide.style.display = 'none';
     }
 
-    handleAddButtonClick() {
-        const inputValue = this.taskInput.value.trim();
+    addTaskHandler() {
+        const task = this.textInput.value.trim();
 
-        if (!this.isInputVisible) {
-            this.showInputContainer();
+        if (!this.inputVisible) {
+            this.showInputArea();
             return;
         }
 
-        if (inputValue) {
-            this.addListItem(inputValue);
-            this.taskInput.value = '';
+        if (task) {
+            this.createTask(task);
+            this.textInput.value = '';
             this.taskList.style.display = 'block';
-            this.inputWrapper.style.display = 'none';
-            this.isInputVisible = false;
+            this.inputContainer.style.display = 'none';
+            this.inputVisible = false;
         } else {
-            alert('Boş mesaj göndermek olmaz!');
+            alert('Boş görev eklenemez!');
         }
     }
 
-    addListItem(text) {
+    createTask(content) {
         const listItem = document.createElement('li');
         listItem.classList.add('colorchange');
-        listItem.textContent = text;
+        listItem.textContent = content;
         listItem.setAttribute('draggable', true);
 
-        listItem.addEventListener('dragstart', (e) => this.handleDragStart(e, listItem));
-        listItem.addEventListener('dragover', (e) => this.handleDragOver(e));
-        listItem.addEventListener('drop', (e) => this.handleDrop(e, listItem));
+        listItem.addEventListener('dragstart', (e) => this.onDragStart(e, listItem));
+        listItem.addEventListener('dragover', (e) => this.onDragOver(e));
+        listItem.addEventListener('drop', (e) => this.onDrop(e, listItem));
 
-        // Çift tıklama ile düzenleme
-        listItem.addEventListener('dblclick', () => this.editListItem(listItem));
+        listItem.addEventListener('dblclick', () => this.enableEdit(listItem));
 
-        const deleteIcon = this.createIcon('x', 'imgs/Group 77 (1).svg', () => this.removeListItem(listItem));
-        const deleteIconHover = this.createIcon('xhover', 'imgs/Group 70.svg', () => this.removeListItem(listItem));
-        const editIcon = this.createIcon('edit', 'imgs/Daco_5027936.png', () => this.removeListItem(listItem));
+        const deleteButton = this.createIcon('x', 'imgs/Group 77 (1).svg', () => this.deleteTask(listItem));
+        const deleteHoverButton = this.createIcon('xhover', 'imgs/Group 70.svg', () => this.deleteTask(listItem));
+        const editButton = this.createIcon('edit', 'imgs/Daco_5027936.png', () => this.deleteTask(listItem));
 
-        deleteIcon.addEventListener('mouseover', () => {
-            deleteIcon.style.display = 'none';
-            deleteIconHover.style.display = 'inline';
+        deleteButton.addEventListener('mouseover', () => {
+            deleteButton.style.display = 'none';
+            deleteHoverButton.style.display = 'inline';
         });
-        deleteIconHover.addEventListener('mouseout', () => {
-            deleteIconHover.style.display = 'none';
-            deleteIcon.style.display = 'inline';
+        deleteHoverButton.addEventListener('mouseout', () => {
+            deleteHoverButton.style.display = 'none';
+            deleteButton.style.display = 'inline';
         });
 
-        listItem.append(deleteIcon, deleteIconHover);
+        listItem.append(deleteButton, deleteHoverButton);
         this.taskList.appendChild(listItem);
     }
 
@@ -102,96 +101,104 @@ class ToDoList {
         return icon;
     }
 
-    editListItem(listItem) {
+    enableEdit(listItem) {
         const currentText = listItem.textContent;
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = currentText;
-        input.classList.add('edit-input');
+        const inputField = document.createElement('input');
+        inputField.type = 'text';
+        inputField.value = currentText;
+        inputField.classList.add('edit-input');
         listItem.textContent = '';
-        listItem.appendChild(input);
-        input.focus();
+        listItem.appendChild(inputField);
+        inputField.focus();
 
-        const finishEditing = () => {
-            listItem.textContent = input.value.trim() || currentText;
-            this.addIcons(listItem); // Düzenlenen metne ikonları geri ekler
+        const completeEditing = () => {
+            listItem.textContent = inputField.value.trim() || currentText;
+            this.attachIcons(listItem);
         };
 
-        input.addEventListener('blur', finishEditing);
-        input.addEventListener('keydown', (e) => {
+        inputField.addEventListener('blur', completeEditing);
+        inputField.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                finishEditing();
+                completeEditing();
             }
         });
     }
 
-    addIcons(listItem) {
-        const deleteIcon = this.createIcon('x', 'imgs/Group 77 (1).svg', () => this.removeListItem(listItem));
-        const deleteIconHover = this.createIcon('xhover', 'imgs/Group 70.svg', () => this.removeListItem(listItem));
-        const editIcon = this.createIcon('edit', 'imgs/Daco_5027936.png', () => this.removeListItem(listItem));
+    attachIcons(listItem) {
+        const deleteButton = this.createIcon('x', 'imgs/Group 77 (1).svg', () => this.deleteTask(listItem));
+        const deleteHoverButton = this.createIcon('xhover', 'imgs/Group 70.svg', () => this.deleteTask(listItem));
+        const editButton = this.createIcon('edit', 'imgs/Daco_5027936.png', () => this.deleteTask(listItem));
 
-        deleteIcon.addEventListener('mouseover', () => {
-            deleteIcon.style.display = 'none';
-            deleteIconHover.style.display = 'inline';
+        deleteButton.addEventListener('mouseover', () => {
+            deleteButton.style.display = 'none';
+            deleteHoverButton.style.display = 'inline';
         });
-        deleteIconHover.addEventListener('mouseout', () => {
-            deleteIconHover.style.display = 'none';
-            deleteIcon.style.display = 'inline';
+        deleteHoverButton.addEventListener('mouseout', () => {
+            deleteHoverButton.style.display = 'none';
+            deleteButton.style.display = 'inline';
         });
 
-        listItem.append(deleteIcon, deleteIconHover);
+        listItem.append(deleteButton, deleteHoverButton);
     }
 
-    handleDragStart(e, listItem) {
+    onDragStart(e, listItem) {
         e.dataTransfer.setData('text/plain', listItem.textContent);
-        this.draggedItem = listItem;
+        this.draggedTask = listItem;
         setTimeout(() => listItem.classList.add('hidden'), 0);
     }
 
-    handleDragOver(e) {
+    onDragOver(e) {
         e.preventDefault();
     }
 
-    handleDrop(e, targetItem) {
+    onDrop(e, targetItem) {
         e.preventDefault();
-        if (this.draggedItem !== targetItem) {
-            const parent = targetItem.parentNode;
-            parent.insertBefore(this.draggedItem, targetItem);
+        if (this.draggedTask !== targetItem) {
+            const parentNode = targetItem.parentNode;
+            parentNode.insertBefore(this.draggedTask, targetItem);
         }
-        this.draggedItem.classList.remove('hidden');
-        this.draggedItem = null;
+        this.draggedTask.classList.remove('hidden');
+        this.draggedTask = null;
     }
 
-    removeListItem(listItem) {
+    deleteTask(listItem) {
         listItem.remove();
         if (!this.taskList.children.length) {
             this.taskList.style.display = 'none';
-            this.showInputContainer();
+            this.showInputArea();
         }
     }
 
-    clearInputField() {
-        this.taskInput.value = '';
+    clearInput() {
+        this.textInput.value = '';
     }
 
-    showInputContainer() {
+    showInputArea() {
         this.taskList.style.display = 'none';
-        this.inputWrapper.style.display = 'flex';
-        this.isInputVisible = true;
+        this.inputContainer.style.display = 'flex';
+        this.inputVisible = true;
     }
 
-    toggleSortOrder(visible, hidden) {
-        [visible.style.display, hidden.style.display] = [hidden.style.display, visible.style.display];
-        this.isAscending = !this.isAscending;
-        this.sortListItems();
+    changeSortOrder(show, hide) {
+        [show.style.display, hide.style.display] = [hide.style.display, show.style.display];
+        this.ascendingOrder = !this.ascendingOrder;
+        this.organizeTasks();
     }
 
-    sortListItems() {
+    organizeTasks() {
         const items = Array.from(this.taskList.children);
-        items.sort((a, b) => this.isAscending
-            ? a.textContent.localeCompare(b.textContent)
-            : b.textContent.localeCompare(a.textContent)
-        );
+        items.sort((a, b) => {
+            const numA = parseInt(a.textContent, 10);
+            const numB = parseInt(b.textContent, 10);
+
+            if (isNaN(numA) || isNaN(numB)) {
+                return this.ascendingOrder 
+                    ? a.textContent.localeCompare(b.textContent)
+                    : b.textContent.localeCompare(a.textContent);
+            }
+
+            return this.ascendingOrder ? numA - numB : numB - numA;
+        });
 
         this.taskList.innerHTML = '';
         items.forEach(item => this.taskList.appendChild(item));
@@ -199,13 +206,13 @@ class ToDoList {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    new ToDoList({
-        addTaskBtnSelector: '.add-button',
-        taskListSelector: '#ol',
-        inputWrapperSelector: '.input-container',
-        taskInputSelector: '.input-container input',
-        toggleIcons: [
-            { visible: document.querySelector('.icon-container'), hidden: document.querySelector('.icon-container2') }
+    new TaskManager({
+        addButtonSelector: '.add-button',
+        listSelector: '#ol',
+        inputContainerSelector: '.input-container',
+        textInputSelector: '.input-container input',
+        toggleButtons: [
+            { show: document.querySelector('.icon-container'), hide: document.querySelector('.icon-container2') }
         ]
     });
 });
