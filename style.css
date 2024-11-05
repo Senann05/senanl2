@@ -98,11 +98,11 @@ img.xhover {
     display: none;
 }
 
-.input-container:hover .x {
+.l:hover .x {
     display: none;
 }
 
-.input-container:hover .xhover {
+.l:hover .xhover {
     display: inline;
 }
 

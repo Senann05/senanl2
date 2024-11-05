@@ -1,110 +1,211 @@
+class ToDoList {
+    constructor(elements) {
+        const {
+            addTaskBtnSelector,
+            taskListSelector,
+            inputWrapperSelector,
+            taskInputSelector,
+            toggleIcons
+        } = elements;
 
-document.addEventListener('DOMContentLoaded', () => {
+        this.addTaskBtn = document.querySelector(addTaskBtnSelector);
+        this.taskList = document.querySelector(taskListSelector);
+        this.inputWrapper = document.querySelector(inputWrapperSelector);
+        this.taskInput = document.querySelector(taskInputSelector);
 
-    function ToDoList(addButtonSelector, olSelector, inputContainerSelector, inputFieldSelector, iconContainers) {
-        const addButton = document.querySelector(addButtonSelector);
-        const olElement = document.querySelector(olSelector);
-        const inputContainer = document.querySelector(inputContainerSelector);
-        const inputField = document.querySelector(inputFieldSelector);
-        
-        let isInputVisible = true;
-        let isAscending = true;
+        this.isInputVisible = true;
+        this.isAscending = true;
 
-        olElement.style.display = 'none';
-        inputContainer.style.display = 'flex';
+        this.initializeUI();
+        this.setupEventListeners(toggleIcons);
+    }
 
-        addButton.addEventListener('click', () => handleAddButtonClick());
+    initializeUI() {
+        this.taskList.style.display = 'none';
+        this.inputWrapper.style.display = 'flex';
+    }
 
-        for (let i = 0; i < iconContainers.length; i++) {
-            const { visible, hidden } = iconContainers[i];
+    setupEventListeners(toggleIcons) {
+        this.addTaskBtn.addEventListener('click', () => this.handleAddButtonClick());
 
-            visible.style.display = 'block';
-            hidden.style.display = 'none';
+        toggleIcons.forEach(({ visible, hidden }) => {
+            this.setToggleIconVisibility(visible, hidden);
+            visible.addEventListener('click', () => this.toggleSortOrder(visible, hidden));
+            hidden.addEventListener('click', () => this.toggleSortOrder(hidden, visible));
+        });
 
-            visible.addEventListener('click', () => toggleSortOrder(visible, hidden));
-            hidden.addEventListener('click', () => toggleSortOrder(hidden, visible));
+        const clearInputIcon = document.querySelector('.xhover');
+        clearInputIcon.addEventListener('click', this.clearInputField.bind(this));
+    }
+
+    setToggleIconVisibility(visible, hidden) {
+        visible.style.display = 'block';
+        hidden.style.display = 'none';
+    }
+
+    handleAddButtonClick() {
+        const inputValue = this.taskInput.value.trim();
+
+        if (!this.isInputVisible) {
+            this.showInputContainer();
+            return;
         }
 
-        function handleAddButtonClick() {
-            const inputValue = inputField.value;
-
-            if (!isInputVisible) {
-                showInputContainer();
-                return;
-            }
-
-            if (inputValue.length > 0) {
-                addListItem(inputValue);
-                inputField.value = ''; 
-                olElement.style.display = 'block';
-                inputContainer.style.display = 'none'; 
-                isInputVisible = false; 
-            } else {
-                alert('Boş mesaj göndermek olmaz!'); 
-            }
-        }
-
-        function addListItem(text) {
-            const newListItem = document.createElement('li');
-            newListItem.classList.add('colorchange');
-
-            const deleteIcon = document.createElement('img');
-            deleteIcon.classList.add('xblock');
-            deleteIcon.src = 'imgs/Group 77 (1).svg';
-            deleteIcon.alt = 'x';
-            
-            const deleteIconHover = document.createElement('img');
-            deleteIconHover.classList.add('xhoverblock');
-            deleteIconHover.src = 'imgs/Group 70.svg';
-            deleteIconHover.alt = 'xpurple';
-
-            deleteIcon.addEventListener('click', () => removeListItem(newListItem));
-            deleteIconHover.addEventListener('click', () => removeListItem(newListItem));
-
-            newListItem.textContent = text;
-            newListItem.appendChild(deleteIcon); 
-            newListItem.appendChild(deleteIconHover); 
-            olElement.appendChild(newListItem); 
-        }
-
-        function removeListItem(listItem) {
-            listItem.remove(); 
-            if (olElement.children.length === 0) {
-                olElement.style.display = 'none';
-                showInputContainer();
-            }
-        }
-
-        function showInputContainer() {
-            olElement.style.display = 'none';
-            inputContainer.style.display = 'flex';
-            isInputVisible = true; 
-        }
-
-        function toggleSortOrder(visible, hidden) {
-            visible.style.display = 'none';
-            hidden.style.display = 'block';
-            
-            isAscending = !isAscending;
-            sortListItems();
-        }
-
-        function sortListItems() {
-            const itemsArray = Array.from(olElement.querySelectorAll('li'));
-            itemsArray.sort((a, b) => {
-                const textA = a.textContent.trim();
-                const textB = b.textContent.trim();
-                return isAscending ? textA.localeCompare(textB) : textB.localeCompare(textA);
-            });
-            
-            olElement.innerHTML = '';
-            itemsArray.forEach(item => olElement.appendChild(item));
+        if (inputValue) {
+            this.addListItem(inputValue);
+            this.taskInput.value = '';
+            this.taskList.style.display = 'block';
+            this.inputWrapper.style.display = 'none';
+            this.isInputVisible = false;
+        } else {
+            alert('Boş mesaj göndermek olmaz!');
         }
     }
 
-    const containers = [
-        { visible: document.querySelector('.icon-container'), hidden: document.querySelector('.icon-container2') }
-    ];
+    addListItem(text) {
+        const listItem = document.createElement('li');
+        listItem.classList.add('colorchange');
+        listItem.textContent = text;
+        listItem.setAttribute('draggable', true);
 
-    ToDoList('.add-button', '#ol', '.input-container', '.input-container input', containers);
+        listItem.addEventListener('dragstart', (e) => this.handleDragStart(e, listItem));
+        listItem.addEventListener('dragover', (e) => this.handleDragOver(e));
+        listItem.addEventListener('drop', (e) => this.handleDrop(e, listItem));
+
+        // Çift tıklama ile düzenleme
+        listItem.addEventListener('dblclick', () => this.editListItem(listItem));
+
+        const deleteIcon = this.createIcon('x', 'imgs/Group 77 (1).svg', () => this.removeListItem(listItem));
+        const deleteIconHover = this.createIcon('xhover', 'imgs/Group 70.svg', () => this.removeListItem(listItem));
+        const editIcon = this.createIcon('edit', 'imgs/Daco_5027936.png', () => this.removeListItem(listItem));
+
+        deleteIcon.addEventListener('mouseover', () => {
+            deleteIcon.style.display = 'none';
+            deleteIconHover.style.display = 'inline';
+        });
+        deleteIconHover.addEventListener('mouseout', () => {
+            deleteIconHover.style.display = 'none';
+            deleteIcon.style.display = 'inline';
+        });
+
+        listItem.append(deleteIcon, deleteIconHover);
+        this.taskList.appendChild(listItem);
+    }
+
+    createIcon(className, src, onClick) {
+        const icon = document.createElement('img');
+        icon.classList.add(className);
+        icon.src = src;
+        icon.alt = className;
+        icon.style.cursor = 'pointer';
+        icon.addEventListener('click', onClick);
+        return icon;
+    }
+
+    editListItem(listItem) {
+        const currentText = listItem.textContent;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentText;
+        input.classList.add('edit-input');
+        listItem.textContent = '';
+        listItem.appendChild(input);
+        input.focus();
+
+        const finishEditing = () => {
+            listItem.textContent = input.value.trim() || currentText;
+            this.addIcons(listItem); // Düzenlenen metne ikonları geri ekler
+        };
+
+        input.addEventListener('blur', finishEditing);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                finishEditing();
+            }
+        });
+    }
+
+    addIcons(listItem) {
+        const deleteIcon = this.createIcon('x', 'imgs/Group 77 (1).svg', () => this.removeListItem(listItem));
+        const deleteIconHover = this.createIcon('xhover', 'imgs/Group 70.svg', () => this.removeListItem(listItem));
+        const editIcon = this.createIcon('edit', 'imgs/Daco_5027936.png', () => this.removeListItem(listItem));
+
+        deleteIcon.addEventListener('mouseover', () => {
+            deleteIcon.style.display = 'none';
+            deleteIconHover.style.display = 'inline';
+        });
+        deleteIconHover.addEventListener('mouseout', () => {
+            deleteIconHover.style.display = 'none';
+            deleteIcon.style.display = 'inline';
+        });
+
+        listItem.append(deleteIcon, deleteIconHover);
+    }
+
+    handleDragStart(e, listItem) {
+        e.dataTransfer.setData('text/plain', listItem.textContent);
+        this.draggedItem = listItem;
+        setTimeout(() => listItem.classList.add('hidden'), 0);
+    }
+
+    handleDragOver(e) {
+        e.preventDefault();
+    }
+
+    handleDrop(e, targetItem) {
+        e.preventDefault();
+        if (this.draggedItem !== targetItem) {
+            const parent = targetItem.parentNode;
+            parent.insertBefore(this.draggedItem, targetItem);
+        }
+        this.draggedItem.classList.remove('hidden');
+        this.draggedItem = null;
+    }
+
+    removeListItem(listItem) {
+        listItem.remove();
+        if (!this.taskList.children.length) {
+            this.taskList.style.display = 'none';
+            this.showInputContainer();
+        }
+    }
+
+    clearInputField() {
+        this.taskInput.value = '';
+    }
+
+    showInputContainer() {
+        this.taskList.style.display = 'none';
+        this.inputWrapper.style.display = 'flex';
+        this.isInputVisible = true;
+    }
+
+    toggleSortOrder(visible, hidden) {
+        [visible.style.display, hidden.style.display] = [hidden.style.display, visible.style.display];
+        this.isAscending = !this.isAscending;
+        this.sortListItems();
+    }
+
+    sortListItems() {
+        const items = Array.from(this.taskList.children);
+        items.sort((a, b) => this.isAscending
+            ? a.textContent.localeCompare(b.textContent)
+            : b.textContent.localeCompare(a.textContent)
+        );
+
+        this.taskList.innerHTML = '';
+        items.forEach(item => this.taskList.appendChild(item));
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    new ToDoList({
+        addTaskBtnSelector: '.add-button',
+        taskListSelector: '#ol',
+        inputWrapperSelector: '.input-container',
+        taskInputSelector: '.input-container input',
+        toggleIcons: [
+            { visible: document.querySelector('.icon-container'), hidden: document.querySelector('.icon-container2') }
+        ]
+    });
 });
